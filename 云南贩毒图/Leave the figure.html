@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .province {
+            stroke: black;
+            stroke-width: 1px;
+        }
+
+        .southsea {
+            stroke: black;
+            stroke-width: 1px;
+            fill: red;
+        }
+        .airPath{
+            stroke: red;
+            stroke-width: 1px;
+        }
+        .circlex{
+            animation-name: circleAnim;
+            animation-duration:.8s;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+            fill: green;
+        }
+        @keyframes circleAnim{
+            0%{
+                r:3px;
+            }
+            100%{
+                r:10px;
+            }
+        }
+    </style>
+</head>
+<script src="d3.4.3.0.js"></script>
+<body>
+
+<script>
+    var width = 1000,
+            height = 1000;
+    var airPath=[{flight:'k941',source:"昆明市",target:'北京',time:'14:23'},{flight:'T544',source:"曲靖市",target:'重庆',time:'14:23'}
+        ,{flight:'Jxs1',source:"昭通市",target:'欧洲',time:'14:23'},{flight:'Jxs1',source:"普洱市",target:'四川s',time:'14:23'}]
+    var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+    svg.append('defs').append('radialGradient').attr('id','radial').attr('cx','50%').attr('cy','50%')
+
+
+    d3.select('#radial').selectAll('stop').data([{offset:'50%',color:''},{offset:'50%'},{offset:'50%'}]).enter().append('stop').attr('offset',function(d){
+        // return d
+    }).style('stop-color',function(d){
+
+    })
+
+
+
+
+    var projection = d3.geoMercator()
+            .center([107, 31])
+            .scale(2500)
+    //.translate([width/2, height/2]);
+
+    var path = d3.geoPath()
+            .projection(projection);
+
+
+    var color = d3.schemeCategory20 ;
+
+
+    d3.json("yunnan.json", function(error, toporoot) {
+        if (error)
+            return console.error(error);
+        var groups = svg.append("g");
+
+        groups.selectAll("path")
+                .data( toporoot )
+                .enter()
+                .append("path")
+                .attr("class","province")
+                .style("fill", function(d,i){
+                    return '#435180'
+                })
+                .attr("d", path );
+        //市的名称说明
+        svg.append('g').selectAll('.text')
+                .data(toporoot)
+                .enter()
+                .append('text')
+                .style("fill","black")
+                .text(function(d){
+                    return d.properties.name
+                })
+                .style('font-size','5')
+                .attr('transform', function (d) {
+                    return 'translate(' + projection(d.properties.cp) + ')';
+                })
+
+        //市位置圆形
+        svg.append('g').selectAll('cicrcle')
+                .data(toporoot)
+                .enter()
+                .append('circle')
+                .attr('class',function(d){
+                    for(let i=0;i<airPath.length;i++){
+                        if(airPath[i].source==d.properties.name){
+                            return 'circlex'
+                        }
+                    }
+                    return
+                })
+                .attr('r', '5')
+                .attr('fill', function(d,i){
+                    return 'url(#radial)';
+                })
+                .attr('transform', function (d) {
+                    return 'translate(' + projection(d.properties.cp) + ')';
+                })
+
+
+
+        //飞机路径图
+        var air=	svg.append('g').selectAll('.airPath')
+                .data(toporoot)
+                .enter()
+                .append('path')
+                .attr("class","airPath")
+                .attr('d',function(d,h){
+                    for(let i=0;i<airPath.length;i++){
+                        if(airPath[i].source==d.properties.name){
+                            return 'M'+(600)+','+(height/2-i*50-5)+' Q'+((projection(d.properties.cp)[0]+600)/2)+','+(projection(d.properties.cp)[1]+20)+','+projection(d.properties.cp)[0]+','+projection(d.properties.cp)[1]
+                        }
+                        //  return ''
+                    }
+                    return ''
+                }).style('fill','none')
+
+        d3.selectAll(".airPath[d='']").remove();
+
+
+
+        var svg_mark = svg.selectAll("arrows.mark")
+                .data(toporoot)
+                .enter()
+                .append('path')
+                .attr('d','M2,2 L10,6 L2,10 L6,6 L2,2')
+                .attr('class',function(d){
+                    for(let i=0;i<airPath.length;i++){
+                        if(airPath[i].source==d.properties.name){
+                            return 'airPath'
+                        }
+                    }
+                    return 'noAir'
+
+                })
+                // .style('fill','red')
+                .style('stroke','red')
+                .style('stroke-width','4px');
+
+
+        d3.selectAll('.noAir').remove();
+
+        svg_mark.append("animateMotion").attr("path",function(d,h){
+            for(let i=0;i<airPath.length;i++){
+                if(airPath[i].source==d.properties.name){
+                    airPath[i].sourceX=(600);
+                    airPath[i].sourceY=(height/2-i*50-10);
+                    airPath[i].targetX=projection(d.properties.cp)[0];
+                    airPath[i].targetY=(projection(d.properties.cp)[1]-10);
+                    return 'M'+(projection(d.properties.cp)[0])+','+(projection(d.properties.cp)[1])+' Q'+((projection(d.properties.cp)[0]+600)/2)+','+(projection(d.properties.cp)[1]+20)+','+600+','+(height/2-i*50-5)
+                }
+            }
+            return ''
+        }).attr("dur","3s").attr("begin","0s").attr("repeatCount","indefinite").attr("rotate","auto");
+
+
+        //市的名称说明
+        svg.append('g').selectAll('.airText')
+                .data(airPath)
+                .enter()
+                .append('text')
+                .style("fill","black")
+                .text(function(d){
+                    return d.flight
+                })
+                .style('font-size','5')
+                .attr('transform', function (d) {
+                    return 'translate(' + [d.sourceX, d.sourceY] + ')';
+                })
+    });
+
+
+</script>
+</body>
+</html>

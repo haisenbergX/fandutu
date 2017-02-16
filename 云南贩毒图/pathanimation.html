@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="d3.4.3.0.js"></script>
+<body>
+<svg width="1000" height="1000">
+    <path id="xx" d="M20,230 Q40,205 50,230 T90,230" fill="none" stroke="blue" stroke-width="5"/>
+</svg>
+<script>
+    var b = d3.select("#xx")
+    var patnN = b.node().getTotalLength()
+
+    b.style('stroke-dashoffset',patnN)
+        .style('stroke-dasharray',patnN)
+
+</script>
+
+</body>
+</html>

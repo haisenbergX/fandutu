@@ -1,0 +1,80 @@
+.province {
+    stroke: black;
+    stroke-width: 1px;
+}
+
+.southsea {
+    stroke: black;
+    stroke-width: 1px;
+    fill: red;
+}
+.airPath{
+    stroke: red;
+    stroke-width: 1px;
+}
+.airPathEntry{
+    stroke: red;
+    stroke-width: 1px;
+}
+.circlex{
+    animation-name: circleAnim;
+    animation-duration:.8s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    fill: green;
+}
+.circleb{
+    animation-name: circleAnim;
+    animation-duration:.8s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    fill: #0d1dff;
+}
+.circlec{
+    animation-name: circleAnim;
+    animation-duration:.8s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    fill: red;
+}
+.ticks {
+    font: 10px sans-serif;
+}
+
+.track,
+.track-inset,
+.track-overlay {
+    stroke-linecap: round;
+}
+
+.track {
+    stroke: #000;
+    stroke-opacity: 0.3;
+    stroke-width: 10px;
+}
+
+.track-inset {
+    stroke: #ddd;
+    stroke-width: 8px;
+}
+
+.track-overlay {
+    pointer-events: stroke;
+    stroke-width: 50px;
+    cursor: crosshair;
+}
+
+.handle {
+    fill: #fff;
+    stroke: #000;
+    stroke-opacity: 0.5;
+    stroke-width: 1.25px;
+}
+@keyframes circleAnim{
+    0%{
+        r:3px;
+    }
+    100%{
+        r:10px;
+    }
+}
